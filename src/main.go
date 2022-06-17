@@ -81,7 +81,6 @@ func openssl() {
 
 	msg, _ = ioutil.ReadFile("plan.txt")                // 从文件读取数据
 	sign, err := privKey.Sign(rand.Reader, msg, nil) // 签名
-	sign, err = privKey.SignDataToSignDigit(nil, msg, nil) // 签名
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -106,6 +105,6 @@ func openssl() {
 }
 
 func main() {
-    //tjfoc_sm2()
-    openssl()
+    tjfoc_sm2()
+    //openssl()
 }
