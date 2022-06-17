@@ -5,6 +5,7 @@ pubfile="pub.key"
 privpem="priv.pem"
 signfile="sm2.sign"
 msgfile="msg.txt"
+shx="sha1"
 
 optname=""
 ef() {
@@ -75,6 +76,16 @@ set_signfile() {
     echo "use signdata file name : $filename"
 }
 
+set_shx() {
+    read -p "input sha ($shx): " shxtype
+    if [ ! $shxtype ];then
+        shxtype=$shx
+    else
+        shx=$shxtype
+    fi
+    echo "use shx name : $shxtype"
+}
+
 genkey() {
     set_privfile
     openssl ecparam -genkey -name SM2 -out $privfile
@@ -92,6 +103,13 @@ outprivpem() {
     set_privfile
     set_privpemfile
     openssl pkcs8 -topk8 -inform PEM -in $privfile -outform pem -nocrypt -out $privpem
+    optname=$FUNCNAME
+}
+
+sum() {
+    set_shx
+    set_msgfile
+    openssl dgst -$shx $msgfile
     optname=$FUNCNAME
 }
 
@@ -120,7 +138,8 @@ do
     3: outprivpem 
     4: sign 
     5: verify 
-    6: showfiles): " idx
+    6: sum
+    7: showfiles): " idx
     case $idx in 
         'q')
             exit
@@ -145,6 +164,9 @@ do
             ;;
 
         6)
+           sum 
+            ;;
+        7)
             show_files
             ;;
         *)

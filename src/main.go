@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 )
 import "github.com/tjfoc/gmsm/sm2"
+import "github.com/tjfoc/gmsm/sm3"
 
 func tjfoc_sm2() {
     //priv, err := sm2.GenerateKey() // 生成密钥对
@@ -51,6 +52,9 @@ func openssl() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+    fmt.Printf("is sm2 privkey: %v\n", privKey.Curve.IsOnCurve(privKey.X, privKey.Y)) // 验证是否为sm2的曲线
+
     pubKey := &privKey.PublicKey
 
     /*
@@ -79,7 +83,7 @@ func openssl() {
 	}
     */
 
-	msg, _ = ioutil.ReadFile("plan.txt")                // 从文件读取数据
+	msg, _ = ioutil.ReadFile("msg.txt")                // 从文件读取数据
 	sign, err := privKey.Sign(rand.Reader, msg, nil) // 签名
 	if err != nil {
 		log.Fatal(err)
@@ -89,7 +93,7 @@ func openssl() {
 		log.Fatal(err)
 	}
 	//signdata, _ := ioutil.ReadFile("ofile")
-    signdata, _ := ioutil.ReadFile("sm2_file.sign")
+    signdata, _ := ioutil.ReadFile("sm2.sign")
     ok := privKey.Verify(msg, signdata) // 密钥验证
 	if ok != true {
 		fmt.Printf("Verify error\n")
@@ -104,7 +108,38 @@ func openssl() {
 	}
 }
 
+func byteToString(b []byte) string {
+    ret := ""
+    for i := 0; i < len(b); i++ {
+        ret += fmt.Sprintf("%02x", b[i])
+    }
+    fmt.Println("ret = ", ret)
+    return ret
+}
+func gen_hash() {
+    /*
+    msg := []byte("test")
+    err := ioutil.WriteFile("ifile", msg, os.FileMode(0644)) // 生成测试文件
+    if err != nil {
+        log.Fatal(err)
+    }
+    */
+    msg, err := ioutil.ReadFile("msg.txt")
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("msg: %s\n", msg)
+    hw := sm3.New()
+    hw.Write(msg)
+    hash := hw.Sum(nil)
+    fmt.Println(hash)
+    fmt.Printf("sum: %s\n", byteToString(hash))
+    hash1 := sm3.Sm3Sum(msg)
+    fmt.Println(hash1)
+    fmt.Printf("sm3sum: %s\n", byteToString(hash1))
+}
 func main() {
-    tjfoc_sm2()
-    //openssl()
+    //tjfoc_sm2()
+    gen_hash()
+    openssl()
 }
