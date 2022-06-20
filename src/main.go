@@ -1,15 +1,14 @@
 package main
 import (
-    "bytes"
 	"fmt"
 	"log"
 	"io/ioutil"
 	"os"
 	"crypto/rand"
+    "bytes"
 )
 import "github.com/tjfoc/gmsm/sm2"
 import "github.com/tjfoc/gmsm/sm3"
-
 func tjfoc_sm2() {
     //priv, err := sm2.GenerateKey() // 生成密钥对
 	priv, err := sm2.ReadPrivateKeyFromPem("priv.pem", nil) // 读取密钥
@@ -57,31 +56,29 @@ func openssl() {
 
     pubKey := &privKey.PublicKey
 
-    /*
-	ok, err := sm2.WritePrivateKeytoPem("priv-wt.pem", privKey, nil) // 生成密钥文件
-	if ok != true {
-		log.Fatal(err)
-	}
+	//ok, err := sm2.WritePrivateKeytoPem("priv-wt.pem", privKey, nil) // 生成密钥文件
+	//if ok != true {
+	//	log.Fatal(err)
+	//}
 
-	pubKey, _ := priv.Public().(*sm2.PublicKey)
-	ok, err = sm2.WritePublicKeytoPem("pub.pem", pubKey, nil) // 生成公钥文件
-	if ok != true {
-		log.Fatal(err)
-	}
+	//pubKey, _ := priv.Public().(*sm2.PublicKey)
+	//ok, err = sm2.WritePublicKeytoPem("pub.pem", pubKey, nil) // 生成公钥文件
+	//if ok != true {
+	//	log.Fatal(err)
+	//}
 
-	err = ioutil.WriteFile("ifile", msg, os.FileMode(0644)) // 生成测试文件
-	if err != nil {
-		log.Fatal(err)
-	}
-	privKey, err := sm2.ReadPrivateKeyFromPem("priv.pem", nil) // 读取密钥
-	if err != nil {
-		log.Fatal(err)
-	}
-	pubKey, err = sm2.ReadPublicKeyFromPem("pub.pem", nil) // 读取公钥
-	if err != nil {
-		log.Fatal(err)
-	}
-    */
+	//err = ioutil.WriteFile("ifile", msg, os.FileMode(0644)) // 生成测试文件
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//privKey, err := sm2.ReadPrivateKeyFromPem("priv.pem", nil) // 读取密钥
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//pubKey, err = sm2.ReadPublicKeyFromPem("pub.pem", nil) // 读取公钥
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 
 	msg, _ = ioutil.ReadFile("msg.txt")                // 从文件读取数据
 	sign, err := privKey.Sign(rand.Reader, msg, nil) // 签名
@@ -117,23 +114,16 @@ func byteToString(b []byte) string {
     return ret
 }
 func gen_hash() {
-    /*
     msg := []byte("test")
     err := ioutil.WriteFile("ifile", msg, os.FileMode(0644)) // 生成测试文件
     if err != nil {
         log.Fatal(err)
     }
-    */
-    msg, err := ioutil.ReadFile("msg.txt")
+    msg, err = ioutil.ReadFile("msg.txt")
     if err != nil {
         log.Fatal(err)
     }
     fmt.Printf("msg: %s\n", msg)
-    hw := sm3.New()
-    hw.Write(msg)
-    hash := hw.Sum(nil)
-    fmt.Println(hash)
-    fmt.Printf("sum: %s\n", byteToString(hash))
     hash1 := sm3.Sm3Sum(msg)
     fmt.Println(hash1)
     fmt.Printf("sm3sum: %s\n", byteToString(hash1))
@@ -141,5 +131,6 @@ func gen_hash() {
 func main() {
     //tjfoc_sm2()
     gen_hash()
+
     openssl()
 }

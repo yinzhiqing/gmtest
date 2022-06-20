@@ -5,7 +5,10 @@ pubfile="pub.key"
 privpem="priv.pem"
 signfile="sm2.sign"
 msgfile="msg.txt"
-shx="sha1"
+#get hash method
+shx="sm3"
+openssl=/opt/openssl/bin/openssl
+#openssl=/usr/bin/openssl
 
 optname=""
 ef() {
@@ -24,6 +27,16 @@ show_files() {
     sign pem:      $signfile
     msg pem:       $msgfile"
     optname=$FUNCNAME
+}
+
+set_openssl() {
+    read -p "input openssl file($openssl): " filename 
+    if [ ! $filename ];then
+        filename=$openssl
+    else
+        openssl=$filename
+    fi
+    echo "use privkey file name : $filename"
 }
 
 set_privfile() {
@@ -71,7 +84,7 @@ set_signfile() {
     if [ ! $filename ];then
         filename=$signfile
     else
-        priv_pem=$filename
+        signfile=$filename
     fi
     echo "use signdata file name : $filename"
 }
@@ -88,44 +101,56 @@ set_shx() {
 
 genkey() {
     set_privfile
-    openssl ecparam -genkey -name SM2 -out $privfile
+    $openssl ecparam -genkey -name SM2 -out $privfile
     optname=$FUNCNAME
 }
 
 outpub() {
     set_privfile
     set_pubfile
-    openssl ec -in $privfile -pubout -out $pubfile
+    $openssl ec -in $privfile -pubout -out $pubfile
     optname=$FUNCNAME
 }
 
 outprivpem() {
     set_privfile
     set_privpemfile
-    openssl pkcs8 -topk8 -inform PEM -in $privfile -outform pem -nocrypt -out $privpem
+    $openssl pkcs8 -topk8 -inform PEM -in $privfile -outform pem -nocrypt -out $privpem
     optname=$FUNCNAME
 }
 
 sum() {
     set_shx
     set_msgfile
-    openssl dgst -$shx $msgfile
+    $openssl dgst -$shx $msgfile
     optname=$FUNCNAME
 }
 
 sign() {
+    set_shx
     set_privfile
     set_signfile
     set_msgfile
-    openssl dgst -sign $privfile -sha1 -out $signfile $msgfile
+    $openssl dgst -sign $privfile -$shx -out $signfile $msgfile
     optname=$FUNCNAME
 }
 
 verify() {
+    set_shx
     set_pubfile
     set_signfile
     set_msgfile
-    openssl dgst -verify $pubfile -sha1 -signature $signfile $msgfile
+    $openssl dgst -verify $pubfile -$shx -signature $signfile $msgfile
+    optname=$FUNCNAME
+}
+
+version() {
+    $openssl version
+    optname=$FUNCNAME
+}
+
+lnopenssl() {
+    set_openssl
     optname=$FUNCNAME
 }
 
@@ -133,6 +158,8 @@ while ((1))
 do
     read -p "input opt index
     q/0: exit
+    v: version
+    l: lnopenssl
     1: genkey 
     2: outpub 
     3: outprivpem 
@@ -143,6 +170,12 @@ do
     case $idx in 
         'q')
             exit
+            ;;
+        'v')
+            version
+            ;;
+        'l')
+            lnopenssl
             ;;
         0)
             exit
