@@ -5,49 +5,31 @@ import (
 	"io/ioutil"
 	"os"
 	"crypto/rand"
-    "bytes"
+    //"bytes"
 )
 import "github.com/tjfoc/gmsm/sm2"
 import "github.com/tjfoc/gmsm/sm3"
-func tjfoc_sm2() {
-    //priv, err := sm2.GenerateKey() // 生成密钥对
-	priv, err := sm2.ReadPrivateKeyFromPem("priv.pem", nil) // 读取密钥
+import "github.com/tjfoc/gmsm/x509"
+
+func openssl() {
+	msg := []byte("test")
+
+    /*
+    priv, err := ioutil.ReadFile("priv.pem")                // 从文件读取数据
 	if err != nil {
 		log.Fatal(err)
 	}
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Printf("priv: %x", priv)
-    msg := []byte("Tongji Fintech Research Institute")
-    pub := &priv.PublicKey
-    ciphertxt, err := pub.Encrypt(msg)
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Println("pub: %x", pub)
-    fmt.Println("加密结果:%x\n",ciphertxt)
-    plaintxt,err :=  priv.Decrypt(ciphertxt)
-    if err != nil {
-        log.Fatal(err)
-    }
-    if !bytes.Equal(msg,plaintxt){
-        log.Fatal("原文不匹配")
-    }
-
-    r,s,err := sm2.Sign(priv, msg)
-    if err != nil {
-        log.Fatal(err)
-    }
-    isok := sm2.Verify(pub,msg,r,s)
-    fmt.Printf("Verified: %v\n", isok)
-    fmt.Println("hello !")
-}
-
-func openssl1x() {
-
-	msg := []byte("test")
-	privKey, err := sm2.ReadPrivateKeyFromPem("priv.pem", nil) // 读取密钥
+    */
+    priv, err := sm2.GenerateKey(rand.Reader) // 生成密钥对
+	fmt.Println(priv)
+	if err != nil {
+		log.Fatal(err)
+	}
+	privPem, err := x509.WritePrivateKeyToPem(priv, nil) // 生成密钥文件
+	if err != nil {
+		log.Fatal(err)
+	}
+	privKey, err := x509.ReadPrivateKeyFromPem(privPem, nil) // 读取密钥
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,6 +86,7 @@ func openssl1x() {
 		fmt.Printf("Verify ok\n")
 	}
 }
+
 func byteToString(b []byte) string {
     ret := ""
     for i := 0; i < len(b); i++ {
@@ -128,8 +111,9 @@ func gen_hash() {
     fmt.Printf("sm3sum: %s\n", byteToString(hash1))
 }
 func main() {
+    fmt.Printf("version 1.4")
     //tjfoc_sm2()
     gen_hash()
 
-    openssl1x()
+    openssl()
 }

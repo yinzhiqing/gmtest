@@ -7,7 +7,7 @@ signfile="sm2.sign"
 msgfile="msg.txt"
 #get hash method
 shx="sm3"
-openssl=/opt/openssl/bin/openssl
+openssl=/opt/openssl304/bin/openssl
 #openssl=/usr/bin/openssl
 
 optname=""
@@ -36,7 +36,7 @@ set_openssl() {
     else
         openssl=$filename
     fi
-    echo "use privkey file name : $filename"
+    echo "use openssl link : $filename"
 }
 
 set_privfile() {
